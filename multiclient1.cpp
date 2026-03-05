@@ -10,11 +10,11 @@
 
 using namespace std;
 
-// 🌍 Shared database
+//  Shared database
 unordered_map<string, string> database;
 mutex db_mutex;   // protects database
 
-// 👤 Client handler function
+//  Client handler function
 void handleClient(SOCKET client_socket) {
     char buffer[1024];
 
@@ -38,18 +38,19 @@ void handleClient(SOCKET client_socket) {
         ss >> command;
 
         string response;
-
+        //SET Command Title
         if (command == "SET" || command == "set") {
             ss >> key >> value >> extra;
 
             if (key.empty() || value.empty() || !extra.empty()) {
                 response = "Error: Usage -> SET key value\n";
             } else {
-                lock_guard<mutex> lock(db_mutex);   // 🔒 thread safety
+                lock_guard<mutex> lock(db_mutex);   // thread safety
                 database[key] = value;
-                response = "OK\n";
+                response = "OK\n"; //After every Command returns OK
             }
         }
+            //GET Command Title
         else if (command == "GET" || command == "get") {
             ss >> key;
 
@@ -59,12 +60,14 @@ void handleClient(SOCKET client_socket) {
             else
                 response = "NULL\n";
         }
+            //DEL Command Title
         else if (command == "DEL" || command == "del") {
             ss >> key;
 
             lock_guard<mutex> lock(db_mutex);
             response = database.erase(key) ? "1\n" : "0\n";
         }
+            //EXIT Command Title
         else if (command == "EXIT" || command == "exit") {
             response = "Disconnected from server\n";
             send(client_socket, response.c_str(), response.size(), 0);
@@ -76,7 +79,7 @@ void handleClient(SOCKET client_socket) {
 
         send(client_socket, response.c_str(), response.size(), 0);
     }
-
+    //After Client DIsconnecting form the Server | Exit
     closesocket(client_socket);
     cout << "Client disconnected\n";
 }
@@ -94,10 +97,10 @@ int main() {
 
     bind(server_fd, (sockaddr*)&address, sizeof(address));
     listen(server_fd, 5);
+    //Server Started to showcase it at port 8080
+    cout << "Server started on port 8080...\n";
 
-    cout << "🚀 Server started on port 8080...\n";
-
-    // 🔁 Accept clients forever
+    // Accept clients forever
     while (true) {
         SOCKET client_socket = accept(server_fd, nullptr, nullptr);
         cout << "Client connected!\n";
@@ -109,4 +112,5 @@ int main() {
     closesocket(server_fd);
     WSACleanup();
     return 0;
+
 }
