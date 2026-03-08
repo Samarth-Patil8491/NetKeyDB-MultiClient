@@ -14,6 +14,13 @@ using namespace std;
 unordered_map<string, string> database;
 mutex db_mutex;   // protects database
 
+// User database (username → password)
+unordered_map<string, string> users = {
+    {"admin", "1234"},
+    {"user1", "pass1"},
+    {"user2", "pass2"}
+};
+
 //  Client handler function
 void handleClient(SOCKET client_socket) {
     char buffer[1024];
@@ -38,6 +45,21 @@ void handleClient(SOCKET client_socket) {
         ss >> command;
 
         string response;
+
+        // AUTH COMMAND
+        if (command == "AUTH" || command == "auth") {
+            string user, pass;
+            ss >> user >> pass;
+
+            if (users.find(user) != users.end() && users[user] == pass) {
+                authenticated = true;
+                currentUser = user;
+                response = "AUTH OK. Welcome " + user + "\n";
+            } else {
+                response = "AUTH FAILED\n";
+            }
+        }
+        //Needed some more work
         //SET Command Title
         if (command == "SET" || command == "set") {
             ss >> key >> value >> extra;
@@ -114,3 +136,4 @@ int main() {
     return 0;
 
 }
+
