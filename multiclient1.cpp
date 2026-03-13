@@ -24,6 +24,8 @@ unordered_map<string, string> users = {
 //  Client handler function
 void handleClient(SOCKET client_socket) {
     char buffer[1024];
+    bool authenticated = false;
+    string currentUser = "";
 
     while (true) {
         memset(buffer, 0, sizeof(buffer));
@@ -54,24 +56,31 @@ void handleClient(SOCKET client_socket) {
             if (users.find(user) != users.end() && users[user] == pass) {
                 authenticated = true;
                 currentUser = user;
+                //Success full Auth confirmation 
                 response = "AUTH OK. Welcome " + user + "\n";
             } else {
+                //If Auth is not recognised
                 response = "AUTH FAILED\n";
             }
         }
-        //Needed some more work
-        //SET Command Title
-        if (command == "SET" || command == "set") {
+        // Block if not logged in
+        else if (!authenticated) {
+            response = "Please login first using AUTH username password\n";
+        }
+
+        //SET Command
+        else if (command == "SET" || command == "set") {
             ss >> key >> value >> extra;
 
             if (key.empty() || value.empty() || !extra.empty()) {
                 response = "Error: Usage -> SET key value\n";
             } else {
-                lock_guard<mutex> lock(db_mutex);   // thread safety
+                lock_guard<mutex> lock(db_mutex);
                 database[key] = value;
-                response = "OK\n"; //After every Command returns OK
+                response = "OK (set by " + currentUser + ")\n";
             }
         }
+
             //GET Command Title
         else if (command == "GET" || command == "get") {
             ss >> key;
