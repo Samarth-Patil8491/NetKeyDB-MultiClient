@@ -1,4 +1,4 @@
-// NetKey Database (DB) - Client
+// NetKey Database (DB) - Multi-Client Client
 
 #include <iostream>
 #include <string>
@@ -51,7 +51,9 @@ int main() {
 
     cout << "Connected to NetKey Server!\n";
     cout << "Server: 127.0.0.1:8080\n";
+
     cout << "\nAvailable commands:\n";
+    cout << "  AUTH username password\n";
     cout << "  SET key value\n";
     cout << "  GET key\n";
     cout << "  DEL key\n";
@@ -103,7 +105,7 @@ int main() {
 
         cout << "Server: " << buffer;
 
-        // EXIT command closes the server
+        // EXIT command closes the client
         if (command == "EXIT" || command == "exit") {
             break;
         }
